@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Túdó — Clickable Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #E7E9F2; min-height: 100vh; }
+  body { font-family: 'Inter', -apple-system, system-ui, sans-serif; color: #1A1F3A;
+    -webkit-font-smoothing: antialiased; }
+  *, *::before, *::after { box-sizing: border-box; }
+  button { font-family: inherit; }
+  ::-webkit-scrollbar { display: none; }
+  .stage {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 20px;
+    padding: 32px 16px;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(184,192,238,0.55) 0%, transparent 45%),
+      radial-gradient(circle at 90% 100%, rgba(27,42,107,0.18) 0%, transparent 50%),
+      #E7E9F2;
+  }
+  .caption { font-family: 'Sora', system-ui; font-size: 12px;
+    color: rgba(27,42,107,0.6); letter-spacing: 0.4px;
+    text-transform: uppercase; font-weight: 600; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="data.jsx"></script>
+<script type="text/babel" src="ui.jsx"></script>
+<script type="text/babel" src="screens-1.jsx"></script>
+<script type="text/babel" src="screens-2.jsx"></script>
+
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "showFrame": true,
+  "tabStyle": "floating"
+}/*EDITMODE-END*/;
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  // Navigation state
+  const [screen, setScreen] = React.useState('splash'); // splash | tab | search | teacher | booking | chat
+  const [tab, setTab] = React.useState('home');
+  const [activeTeacher, setActiveTeacher] = React.useState(null);
+  const [activeChat, setActiveChat] = React.useState(null);
+  const [filterSubject, setFilterSubject] = React.useState(null);
+
+  // Helpers
+  const goTo = (s) => setScreen(s);
+  const openTeacher = (teacher) => { setActiveTeacher(teacher); setScreen('teacher'); };
+  const openChat = (chat) => { setActiveChat(chat); setScreen('chat'); };
+
+  // Render the active screen
+  const renderScreen = () => {
+    if (screen === 'splash') {
+      return (
+        <SplashScreen
+          onSignIn={() => { setScreen('tab'); setTab('home'); }}
+          onSignUp={() => { setScreen('tab'); setTab('home'); }}
+        />
+      );
+    }
+    if (screen === 'search') {
+      return (
+        <SearchScreen
+          filterSubject={filterSubject}
+          onSubjectChange={setFilterSubject}
+          onTeacher={openTeacher}
+          onBack={() => { setScreen('tab'); setTab('home'); }}
+        />
+      );
+    }
+    if (screen === 'teacher' && activeTeacher) {
+      return (
+        <TeacherDetailScreen
+          teacher={activeTeacher}
+          onBack={() => setScreen('tab')}
+          onBook={() => setScreen('booking')}
+          onChat={() => {
+            const existing = TUDO_CHATS.find(c => c.teacherId === activeTeacher.id);
+            const c = existing || { id: 'new', teacherId: activeTeacher.id, lastMessage: '', lastTime: 'núna', unread: 0, messages: [] };
+            openChat(c);
+          }}
+        />
+      );
+    }
+    if (screen === 'booking' && activeTeacher) {
+      return (
+        <BookingScreen
+          teacher={activeTeacher}
+          onBack={() => setScreen('teacher')}
+          onConfirm={() => { setScreen('tab'); setTab('bookings'); }}
+        />
+      );
+    }
+    if (screen === 'chat' && activeChat) {
+      return (
+        <ChatThreadScreen
+          chat={activeChat}
+          onBack={() => { setScreen('tab'); setTab('chats'); }}
+        />
+      );
+    }
+    // tab screens
+    if (tab === 'home') return (
+      <HomeScreen
+        onTeacher={openTeacher}
+        onSearch={() => { setFilterSubject(null); setScreen('search'); }}
+        onSubject={(s) => { setFilterSubject(s); setScreen('search'); }}
+      />
+    );
+    if (tab === 'bookings') return <BookingsScreen onTeacher={openTeacher} />;
+    if (tab === 'chats') return <ChatsScreen onChat={openChat} />;
+    if (tab === 'profile') return <ProfileScreen />;
+    return null;
+  };
+
+  // Tab bar shows only when on a primary tab screen
+  const showTabBar = screen === 'tab';
+
+  const screenContent = (
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden',
+      background: '#fff' }}>
+      {renderScreen()}
+      {showTabBar && (
+        <TabBar active={tab} onChange={(id) => { setTab(id); setScreen('tab'); }} />
+      )}
+    </div>
+  );
+
+  return (
+    <div className="stage">
+      <div data-screen-label={`Túdó · ${screen === 'tab' ? tab : screen}`}>
+        {t.showFrame ? (
+          <IOSDevice width={390} height={844}>
+            {screenContent}
+          </IOSDevice>
+        ) : (
+          <div style={{
+            width: 390, height: 844, borderRadius: 48, overflow: 'hidden',
+            position: 'relative', boxShadow: '0 40px 80px rgba(0,0,0,0.18)',
+          }}>
+            {screenContent}
+          </div>
+        )}
+      </div>
+      <div className="caption">Túdó · Smelltu á „Skrá inn" til að byrja</div>
+
+      <TweaksPanel>
+        <TweakSection label="Frame" />
+        <TweakToggle label="iPhone bezel" value={t.showFrame}
+          onChange={(v) => setTweak('showFrame', v)} />
+        <TweakSection label="Demo flow" />
+        <TweakButton label="Reset to splash" onClick={() => {
+          setScreen('splash'); setTab('home');
+          setActiveTeacher(null); setActiveChat(null); setFilterSubject(null);
+        }} />
+      </TweaksPanel>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
