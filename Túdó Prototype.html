@@ -1047,8 +1047,20 @@ const TUDO_TEACHER_REQUESTS = [
 const TUDO_TEACHER_SESSIONS = [
   { id: 'ts1', studentName: 'Margrét Snorradóttir', studentInitials: 'MS', studentBg: '#3D4B9E',
     course: 'STÆ 3X3', topic: 'Heildun og tilvik', date: 'Á morgun', time: '14:00 – 15:00', mode: 'Á netinu', groupSize: 1 },
-  { id: 'ts2', studentName: 'Hópur · 4 nem.', studentInitials: '4', studentBg: '#1B2A6B',
+  { id: 'ts2', studentName: 'Hópur · Daði + 3', studentInitials: '4', studentBg: '#1B2A6B',
     course: 'EÐL 2A3', topic: 'Hringhreyfing og þungi', date: 'Fim 8. maí', time: '16:30 – 17:30', mode: 'Hjá kennara', groupSize: 4 },
+];
+
+// Teacher's past sessions
+const TUDO_TEACHER_PAST_SESSIONS = [
+  { id: 'tp1', studentName: 'Lísa Jónsdóttir', studentInitials: 'LJ', studentBg: '#7B85D1',
+    course: 'STÆ 3X3', topic: 'Diffrun, fyrri kafli', date: '28. apríl', time: '16:00 – 17:00', mode: 'Á netinu', groupSize: 1, rated: 5 },
+  { id: 'tp2', studentName: 'Ólafur Þór', studentInitials: 'ÓÞ', studentBg: '#8590D8',
+    course: 'EÐL 2A3', topic: 'Newton lögmál', date: '24. apríl', time: '15:00 – 16:00', mode: 'Hjá kennara', groupSize: 1, rated: 5 },
+  { id: 'tp3', studentName: 'Hópur · MR — 3 nem.', studentInitials: '3', studentBg: '#1B2A6B',
+    course: 'STÆ 3X3', topic: 'Próflestur fyrir lokapróf', date: '20. apríl', time: '14:00 – 16:00', mode: 'Hjá kennara', groupSize: 3, rated: 4 },
+  { id: 'tp4', studentName: 'Sólveig Thors', studentInitials: 'ST', studentBg: '#3D4B9E',
+    course: 'STÆ 1A3', topic: 'Hnitakerfi og föll', date: '15. apríl', time: '17:00 – 18:00', mode: 'Á netinu', groupSize: 1, rated: 5 },
 ];
 
 // Teacher's saved availability (slots they marked as free). Keyed by date.
@@ -1087,6 +1099,7 @@ window.TUDO_BOOKINGS = TUDO_BOOKINGS;
 window.TUDO_REQUESTS = TUDO_REQUESTS;
 window.TUDO_TEACHER_REQUESTS = TUDO_TEACHER_REQUESTS;
 window.TUDO_TEACHER_SESSIONS = TUDO_TEACHER_SESSIONS;
+window.TUDO_TEACHER_PAST_SESSIONS = TUDO_TEACHER_PAST_SESSIONS;
 window.TUDO_TEACHER_AVAILABILITY = TUDO_TEACHER_AVAILABILITY;
 window.TUDO_TEACHER_AVAILABILITY_DEFAULT = TUDO_TEACHER_AVAILABILITY_DEFAULT;
 
@@ -1285,6 +1298,17 @@ const Icon = {
   x: (s = 18, c = '#6B7290') => (
     <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
       <path d="M6 6l12 12M18 6L6 18" stroke={c} strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  ),
+  phone: (s = 22, c = '#1B2A6B') => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" stroke={c} strokeWidth="1.8" strokeLinejoin="round"/>
+    </svg>
+  ),
+  video: (s = 22, c = '#1B2A6B') => (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+      <rect x="2" y="6" width="14" height="12" rx="2" stroke={c} strokeWidth="1.8"/>
+      <path d="M22 8l-6 4 6 4V8z" stroke={c} strokeWidth="1.8" strokeLinejoin="round"/>
     </svg>
   ),
 };
@@ -2775,115 +2799,153 @@ function StudentAvatar({ name, initials, bg, size = 48 }) {
 }
 
 // ── TEACHER DASHBOARD ─────────────────────────────────────────
-function TeacherHomeScreen({ onRequest, requests, sessions }) {
+function TeacherHomeScreen({ onRequest, onSession, requests, sessions, pastSessions }) {
+  const [tab, setTab] = React.useState('requests');
   const pending = requests.filter(r => r.status === 'pending');
+  const acceptedFromRequests = requests.filter(r => r.status === 'accepted');
+  const allUpcoming = [...sessions, ...acceptedFromRequests];
+
+  const tabs = [
+    { id: 'requests', l: 'Beiðnir', count: pending.length },
+    { id: 'upcoming', l: 'Bókanir' },
+    { id: 'past', l: 'Liðnar' },
+  ];
+
   return (
     <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column' }}>
-      <GradientBg intensity={0.85} />
+      <GradientBg intensity={0.6} />
       <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
         <TudoHeader showAvatar={false} />
-        <div style={{ flex: 1, overflowY: 'auto', padding: '4px 0 110px' }}>
-          {/* greeting */}
-          <div style={{ padding: '6px 22px 10px' }}>
-            <div style={{ fontSize: 13, color: TUDO_MUTED, fontWeight: 500 }}>Halló Anna 👋</div>
-            <div style={{ fontSize: 22, fontWeight: 700, color: TUDO_INK, lineHeight: 1.15,
-              fontFamily: '"Sora", system-ui, sans-serif', marginTop: 2 }}>
-              {pending.length} {pending.length === 1 ? 'ný beiðni bíður' : 'nýjar beiðnir bíða'} svars
-            </div>
-          </div>
-
-          {/* stats strip */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, padding: '8px 18px 6px' }}>
-            <StatCard label="Beiðnir" value={pending.length} />
-            <StatCard label="Tímar" value={sessions.length} />
-            <StatCard label="Mat" value={`${TEACHER_ME.rating.toFixed(1)}★`} />
-          </div>
-
-          {/* incoming requests */}
-          <SectionHeader title="Nýjar beiðnir" />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: '0 18px' }}>
-            {pending.length === 0 && (
-              <div style={{ textAlign: 'center', padding: 30, background: '#fff',
-                borderRadius: 18, border: `1px solid ${TUDO_HAIR}`,
-                color: TUDO_MUTED, fontSize: 13.5 }}>
-                Engar nýjar beiðnir 🎉
-              </div>
-            )}
-            {pending.map(r => (
-              <button key={r.id} onClick={() => onRequest(r)} style={{
-                width: '100%', textAlign: 'left', cursor: 'pointer',
-                background: '#fff', border: `1px solid ${TUDO_HAIR}`, borderRadius: 18,
-                padding: 14, boxShadow: '0 4px 14px rgba(15,26,74,0.06)', fontFamily: 'inherit',
+        <div style={{ padding: '6px 22px 4px' }}>
+          <div style={{ fontSize: 13, color: TUDO_MUTED, fontWeight: 500 }}>Halló Anna 👋</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: TUDO_INK,
+            fontFamily: '"Sora", system-ui, sans-serif', marginTop: 2 }}>Bókanir</div>
+        </div>
+        {/* filter chips */}
+        <div style={{ display: 'flex', gap: 8, padding: '10px 22px 14px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+          {tabs.map(t => {
+            const active = tab === t.id;
+            return (
+              <button key={t.id} onClick={() => setTab(t.id)} style={{
+                padding: '8px 14px', borderRadius: 999,
+                background: active ? TUDO_NAVY : '#fff',
+                color: active ? '#fff' : TUDO_INK,
+                border: active ? 'none' : `1px solid ${TUDO_HAIR}`,
+                fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
+                whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0,
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <StudentAvatar name={r.studentName} initials={r.studentInitials} bg={r.studentBg} size={48} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14.5, fontWeight: 700, color: TUDO_INK,
-                      fontFamily: '"Sora", system-ui, sans-serif' }}>{r.studentName}</div>
-                    <div style={{ fontSize: 12.5, color: TUDO_MUTED, whiteSpace: 'nowrap',
-                      overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {r.course} · {r.topic}
-                    </div>
-                  </div>
-                  <div style={{ background: '#FFF7E0', color: '#A6750C',
-                    padding: '4px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
-                    Nýtt
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: 14, marginTop: 12, paddingTop: 12,
-                  borderTop: `1px dashed ${TUDO_HAIR}`, fontSize: 12.5, flexWrap: 'wrap' }}>
-                  <InfoChip icon={Icon.calendar(13, TUDO_MUTED)}>{r.date}</InfoChip>
-                  <InfoChip>{r.time}</InfoChip>
-                  {r.groupSize > 1 && <InfoChip icon={Icon.users(13, TUDO_MUTED)}>Hópur · {r.groupSize}</InfoChip>}
-                  {r.attachment && <InfoChip icon={Icon.file(13, TUDO_MUTED)}>{r.attachment}</InfoChip>}
-                </div>
+                {t.l}
+                {t.count > 0 && (
+                  <span style={{
+                    background: active ? 'rgba(255,255,255,0.22)' : TUDO_LAVENDER_LIGHT,
+                    color: active ? '#fff' : TUDO_NAVY,
+                    borderRadius: 999, padding: '1px 7px', fontSize: 11, fontWeight: 700,
+                    minWidth: 18, textAlign: 'center',
+                  }}>{t.count}</span>
+                )}
               </button>
-            ))}
-          </div>
+            );
+          })}
+        </div>
 
-          {/* upcoming sessions */}
-          <SectionHeader title="Næstu tímar" />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: '0 18px' }}>
-            {sessions.length === 0 && (
-              <div style={{ textAlign: 'center', padding: 30, background: '#fff',
-                borderRadius: 18, border: `1px solid ${TUDO_HAIR}`,
-                color: TUDO_MUTED, fontSize: 13.5 }}>
-                Engir tímar bókaðir
-              </div>
-            )}
-            {sessions.map(s => (
-              <div key={s.id} style={{
-                background: '#fff', border: `1px solid ${TUDO_HAIR}`, borderRadius: 18,
-                padding: 14, boxShadow: '0 4px 14px rgba(15,26,74,0.06)',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <StudentAvatar name={s.studentName} initials={s.studentInitials} bg={s.studentBg} size={44} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: TUDO_INK,
-                      fontFamily: '"Sora", system-ui, sans-serif' }}>{s.studentName}</div>
-                    <div style={{ fontSize: 12, color: TUDO_MUTED }}>
-                      {s.course} · {s.topic}
-                    </div>
-                  </div>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '0 18px 110px' }}>
+          {tab === 'requests' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {pending.length === 0 && (
+                <div style={{ textAlign: 'center', padding: 40, color: TUDO_MUTED, fontSize: 14 }}>
+                  Engar nýjar beiðnir 🎉
                 </div>
-                <div style={{ display: 'flex', gap: 14, marginTop: 12, paddingTop: 12,
-                  borderTop: `1px dashed ${TUDO_HAIR}`, fontSize: 12.5, flexWrap: 'wrap' }}>
-                  <InfoChip icon={Icon.calendar(13, TUDO_MUTED)}>{s.date}</InfoChip>
-                  <InfoChip>{s.time}</InfoChip>
-                  <InfoChip>{s.mode}</InfoChip>
-                  {s.groupSize > 1 && <InfoChip icon={Icon.users(13, TUDO_MUTED)}>{s.groupSize}</InfoChip>}
+              )}
+              {pending.map(r => (
+                <TeacherRequestCard key={r.id} item={r} status="pending" onClick={() => onRequest(r)} />
+              ))}
+            </div>
+          )}
+          {tab === 'upcoming' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {allUpcoming.length === 0 && (
+                <div style={{ textAlign: 'center', padding: 40, color: TUDO_MUTED, fontSize: 14 }}>
+                  Engir tímar bókaðir
                 </div>
-              </div>
-            ))}
-          </div>
+              )}
+              {allUpcoming.map(s => (
+                <TeacherRequestCard key={s.id} item={s} status="upcoming"
+                  onClick={() => onSession({ ...s, _kind: 'upcoming' })} />
+              ))}
+            </div>
+          )}
+          {tab === 'past' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {pastSessions.length === 0 && (
+                <div style={{ textAlign: 'center', padding: 40, color: TUDO_MUTED, fontSize: 14 }}>
+                  Engir liðnir tímar
+                </div>
+              )}
+              {pastSessions.map(s => (
+                <TeacherRequestCard key={s.id} item={s} status="past"
+                  onClick={() => onSession({ ...s, _kind: 'past' })} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-// ── TEACHER REQUEST DETAIL ────────────────────────────────────
-function TeacherRequestDetailScreen({ request, onBack, onAccept, onDecline }) {
+// Shared card: student name, when, time, where, course, group size, status chip.
+function TeacherRequestCard({ item, status, onClick }) {
+  const statusMeta = {
+    pending: { label: 'Nýtt', bg: '#FFF7E0', fg: '#A6750C' },
+    upcoming: { label: 'Samþykkt', bg: '#E1F5EA', fg: '#1F7A47' },
+    past: null,
+  }[status];
+  return (
+    <button onClick={onClick} style={{
+      width: '100%', textAlign: 'left', cursor: 'pointer',
+      background: '#fff', border: `1px solid ${TUDO_HAIR}`, borderRadius: 18,
+      padding: 14, boxShadow: '0 4px 14px rgba(15,26,74,0.06)', fontFamily: 'inherit',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <StudentAvatar name={item.studentName} initials={item.studentInitials} bg={item.studentBg} size={48} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 14.5, fontWeight: 700, color: TUDO_INK,
+            fontFamily: '"Sora", system-ui, sans-serif' }}>{item.studentName}</div>
+          <div style={{ fontSize: 12.5, color: TUDO_MUTED, whiteSpace: 'nowrap',
+            overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {item.course} · {item.topic}
+          </div>
+        </div>
+        {statusMeta && (
+          <div style={{ background: statusMeta.bg, color: statusMeta.fg,
+            padding: '4px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+            {statusMeta.label}
+          </div>
+        )}
+        {status === 'past' && item.rated && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 3,
+            background: TUDO_LAVENDER_LIGHT, padding: '4px 8px', borderRadius: 999,
+            fontSize: 12, fontWeight: 600, color: TUDO_NAVY }}>
+            {Icon.star(11)} {item.rated}.0
+          </div>
+        )}
+      </div>
+      <div style={{ display: 'flex', gap: 14, marginTop: 12, paddingTop: 12,
+        borderTop: `1px dashed ${TUDO_HAIR}`, fontSize: 12.5, flexWrap: 'wrap' }}>
+        <InfoChip icon={Icon.calendar(13, TUDO_MUTED)}>{item.date}</InfoChip>
+        <InfoChip>{item.time}</InfoChip>
+        <InfoChip icon={item.mode === 'Á netinu' ? Icon.online(13, TUDO_MUTED) : Icon.pin(13, TUDO_MUTED)}>{item.mode}</InfoChip>
+        {item.groupSize > 1 && <InfoChip icon={Icon.users(13, TUDO_MUTED)}>Hópur · {item.groupSize}</InfoChip>}
+        {item.attachment && <InfoChip icon={Icon.file(13, TUDO_MUTED)}>{item.attachment}</InfoChip>}
+      </div>
+    </button>
+  );
+}
+
+// ── TEACHER REQUEST / SESSION DETAIL ──────────────────────────
+// One screen, three flavors. status: 'pending' | 'upcoming' | 'past'
+function TeacherRequestDetailScreen({ request, status = 'pending', onBack, onAccept, onDecline, onChat, onCancel }) {
+  const titleFor = { pending: 'Beiðni', upcoming: 'Bókaður tími', past: 'Liðinn tími' }[status];
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#FAFBFE', display: 'flex', flexDirection: 'column' }}>
       <div style={{ paddingTop: 56, padding: '56px 18px 12px', display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -2893,7 +2955,7 @@ function TeacherRequestDetailScreen({ request, onBack, onAccept, onDecline }) {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>{Icon.back(20, TUDO_NAVY)}</button>
         <div style={{ fontSize: 18, fontWeight: 700, color: TUDO_INK,
-          fontFamily: '"Sora", system-ui, sans-serif' }}>Beiðni</div>
+          fontFamily: '"Sora", system-ui, sans-serif' }}>{titleFor}</div>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', padding: '8px 18px 130px' }}>
         {/* student card */}
@@ -2904,7 +2966,9 @@ function TeacherRequestDetailScreen({ request, onBack, onAccept, onDecline }) {
             <div style={{ fontSize: 16, fontWeight: 700, color: TUDO_INK,
               fontFamily: '"Sora", system-ui, sans-serif' }}>{request.studentName}</div>
             <div style={{ fontSize: 12.5, color: TUDO_MUTED, marginTop: 2 }}>
-              Sent {request.sentAt}
+              {status === 'pending' ? `Sent ${request.sentAt}` :
+               status === 'upcoming' ? 'Samþykkt' :
+               request.rated ? `Mat: ${request.rated}.0 ★` : 'Lokið'}
             </div>
           </div>
         </div>
@@ -2912,7 +2976,7 @@ function TeacherRequestDetailScreen({ request, onBack, onAccept, onDecline }) {
         {/* details */}
         <div style={{ background: '#fff', border: `1px solid ${TUDO_HAIR}`, borderRadius: 18, padding: 18, marginTop: 14 }}>
           <DetailRow label="Áfangi" value={request.course} />
-          <DetailRow label="Efni" value={request.topic} multiline />
+          {request.topic && <DetailRow label="Efni" value={request.topic} multiline />}
           <DetailRow label="Dagsetning" value={request.date} />
           <DetailRow label="Tími" value={request.time} />
           <DetailRow label="Tegund" value={request.mode} />
@@ -2938,33 +3002,79 @@ function TeacherRequestDetailScreen({ request, onBack, onAccept, onDecline }) {
           )}
         </div>
 
-        {/* note */}
-        <div style={{ background: TUDO_LAVENDER_LIGHT, borderRadius: 14, padding: 14, marginTop: 14,
-          display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-          {Icon.shield(20, TUDO_NAVY)}
-          <div style={{ fontSize: 12.5, color: TUDO_NAVY, lineHeight: 1.4 }}>
-            Þú getur skrifað nemandanum fyrir svör. Greiðsla fer fram eftir kennslu.
+        {/* contextual info note */}
+        {status === 'pending' && (
+          <div style={{ background: TUDO_LAVENDER_LIGHT, borderRadius: 14, padding: 14, marginTop: 14,
+            display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+            {Icon.shield(20, TUDO_NAVY)}
+            <div style={{ fontSize: 12.5, color: TUDO_NAVY, lineHeight: 1.4 }}>
+              Þú getur skrifað nemandanum fyrir svör. Greiðsla fer fram eftir kennslu.
+            </div>
           </div>
-        </div>
+        )}
+        {status === 'upcoming' && (
+          <div style={{ background: TUDO_LAVENDER_LIGHT, borderRadius: 14, padding: 14, marginTop: 14,
+            display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+            {Icon.bell(20, TUDO_NAVY)}
+            <div style={{ fontSize: 12.5, color: TUDO_NAVY, lineHeight: 1.4 }}>
+              Þú færð áminningu 30 mínútum fyrir tímann.
+            </div>
+          </div>
+        )}
       </div>
 
       {/* sticky action buttons */}
       <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0,
         padding: '16px 18px 26px', display: 'flex', gap: 10,
         background: 'linear-gradient(180deg, rgba(250,251,254,0) 0%, #FAFBFE 30%)' }}>
-        <button onClick={onDecline} style={{
-          flex: 1, padding: '14px 20px', borderRadius: 999,
-          background: '#fff', color: '#B53939', border: `1.5px solid ${TUDO_HAIR}`,
-          cursor: 'pointer', fontSize: 15, fontWeight: 700,
-          fontFamily: '"Sora", system-ui, sans-serif',
-        }}>Hafna</button>
-        <button onClick={onAccept} style={{
-          flex: 1.4, padding: '14px 20px', borderRadius: 999,
-          background: TUDO_NAVY, color: '#fff', border: 'none', cursor: 'pointer',
-          fontSize: 15, fontWeight: 700, fontFamily: '"Sora", system-ui, sans-serif',
-          boxShadow: '0 6px 18px rgba(27,42,107,0.28)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-        }}>{Icon.check(18)}Samþykkja</button>
+        {status === 'pending' && (
+          <>
+            <button onClick={onDecline} style={{
+              flex: 1, padding: '14px 16px', borderRadius: 999,
+              background: '#fff', color: '#B53939', border: `1.5px solid ${TUDO_HAIR}`,
+              cursor: 'pointer', fontSize: 14.5, fontWeight: 700,
+              fontFamily: '"Sora", system-ui, sans-serif',
+            }}>Hafna</button>
+            <button onClick={onChat} title="Skrifa nemandanum" style={{
+              width: 52, padding: '14px 0', borderRadius: 999,
+              background: '#fff', border: `1.5px solid ${TUDO_HAIR}`, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}>{Icon.chat(20, TUDO_NAVY)}</button>
+            <button onClick={onAccept} style={{
+              flex: 1.4, padding: '14px 16px', borderRadius: 999,
+              background: TUDO_NAVY, color: '#fff', border: 'none', cursor: 'pointer',
+              fontSize: 14.5, fontWeight: 700, fontFamily: '"Sora", system-ui, sans-serif',
+              boxShadow: '0 6px 18px rgba(27,42,107,0.28)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}>{Icon.check(18)}Samþykkja</button>
+          </>
+        )}
+        {status === 'upcoming' && (
+          <>
+            <button onClick={onCancel} style={{
+              flex: 1, padding: '14px 20px', borderRadius: 999,
+              background: '#fff', color: '#B53939', border: `1.5px solid ${TUDO_HAIR}`,
+              cursor: 'pointer', fontSize: 14.5, fontWeight: 700,
+              fontFamily: '"Sora", system-ui, sans-serif',
+            }}>Afbóka</button>
+            <button onClick={onChat} style={{
+              flex: 1.4, padding: '14px 20px', borderRadius: 999,
+              background: TUDO_NAVY, color: '#fff', border: 'none', cursor: 'pointer',
+              fontSize: 14.5, fontWeight: 700, fontFamily: '"Sora", system-ui, sans-serif',
+              boxShadow: '0 6px 18px rgba(27,42,107,0.28)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            }}>{Icon.chat(18, '#fff', true)}Senda skilaboð</button>
+          </>
+        )}
+        {status === 'past' && (
+          <button onClick={onChat} style={{
+            flex: 1, padding: '14px 20px', borderRadius: 999,
+            background: TUDO_NAVY, color: '#fff', border: 'none', cursor: 'pointer',
+            fontSize: 14.5, fontWeight: 700, fontFamily: '"Sora", system-ui, sans-serif',
+            boxShadow: '0 6px 18px rgba(27,42,107,0.28)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          }}>{Icon.chat(18, '#fff', true)}Senda skilaboð</button>
+        )}
       </div>
     </div>
   );
@@ -3157,8 +3267,8 @@ function TeacherChatThreadScreen({ chat, onBack }) {
   };
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#FAFBFE', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ paddingTop: 56, padding: '56px 18px 12px',
-        display: 'flex', alignItems: 'center', gap: 12,
+      <div style={{ paddingTop: 56, padding: '56px 14px 12px',
+        display: 'flex', alignItems: 'center', gap: 10,
         borderBottom: `1px solid ${TUDO_HAIR}`, background: '#fff' }}>
         <button onClick={onBack} style={{
           width: 36, height: 36, borderRadius: 999, border: 'none', cursor: 'pointer',
@@ -3171,6 +3281,15 @@ function TeacherChatThreadScreen({ chat, onBack }) {
             whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{chat.studentName}</div>
           <div style={{ fontSize: 11.5, color: '#2BB673', fontWeight: 500 }}>● Á netinu</div>
         </div>
+        {/* call & video — teacher only, demo buttons */}
+        <button title="Hringja" style={{
+          width: 38, height: 38, borderRadius: '50%', border: 'none', cursor: 'pointer',
+          background: TUDO_LAVENDER_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        }}>{Icon.phone(18, TUDO_NAVY)}</button>
+        <button title="Myndsímtal" style={{
+          width: 38, height: 38, borderRadius: '50%', border: 'none', cursor: 'pointer',
+          background: TUDO_LAVENDER_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        }}>{Icon.video(18, TUDO_NAVY)}</button>
       </div>
       <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 100px',
         display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -3367,20 +3486,41 @@ function App() {
 
     // ─── TEACHER MODE ─────────────────────────────────────────
     if (role === 'teacher') {
-      if (screen === 'request-detail' && activeRequest) return (
-        <TeacherRequestDetailScreen
-          request={activeRequest}
-          onBack={() => { setScreen('tab'); setTab('home'); }}
-          onAccept={() => {
-            setTeacherRequests(rs => rs.map(r => r.id === activeRequest.id ? { ...r, status: 'accepted' } : r));
-            setScreen('tab'); setTab('home');
-          }}
-          onDecline={() => {
-            setTeacherRequests(rs => rs.filter(r => r.id !== activeRequest.id));
-            setScreen('tab'); setTab('home');
-          }}
-        />
-      );
+      if (screen === 'request-detail' && activeRequest) {
+        const reqStatus = activeRequest._kind || 'pending';
+        const openChatFromDetail = () => {
+          const studentName = activeRequest.studentName;
+          const existing = TUDO_TEACHER_CHATS.find(c => c.name === studentName);
+          const chat = existing || {
+            id: 'new-' + activeRequest.id,
+            name: studentName,
+            initials: activeRequest.studentInitials || studentName.split(' ').map(w=>w[0]).join(''),
+            bg: activeRequest.studentBg || '#7B85D1',
+            lastMessage: '',
+            lastTime: 'núna',
+            unread: 0,
+            messages: []
+          };
+          openTeacherChat(chat);
+        };
+        return (
+          <TeacherRequestDetailScreen
+            request={activeRequest}
+            status={reqStatus}
+            onBack={() => { setScreen('tab'); setTab('home'); }}
+            onAccept={() => {
+              setTeacherRequests(rs => rs.map(r => r.id === activeRequest.id ? { ...r, status: 'accepted' } : r));
+              setScreen('tab'); setTab('home');
+            }}
+            onDecline={() => {
+              setTeacherRequests(rs => rs.filter(r => r.id !== activeRequest.id));
+              setScreen('tab'); setTab('home');
+            }}
+            onCancel={() => { setScreen('tab'); setTab('home'); }}
+            onChat={openChatFromDetail}
+          />
+        );
+      }
       if (screen === 'teacher-chat' && activeChat) return (
         <TeacherChatThreadScreen
           chat={activeChat}
@@ -3391,7 +3531,9 @@ function App() {
         <TeacherHomeScreen
           requests={teacherRequests}
           sessions={TUDO_TEACHER_SESSIONS}
+          pastSessions={TUDO_TEACHER_PAST_SESSIONS}
           onRequest={openRequest}
+          onSession={(item) => { setActiveRequest(item); setScreen('request-detail'); }}
         />
       );
       if (tab === 'availability') return (
