@@ -1092,6 +1092,43 @@ TUDO_TEACHERS.find(t => t.id === 't3').groupMax = 6;
 TUDO_TEACHERS.find(t => t.id === 't4').groupMax = 3;
 TUDO_TEACHERS.find(t => t.id === 't5').groupMax = 5;
 
+const TUDO_REVIEWS = {
+  t1: [
+    { id:'rv1', name:'Sigríður Björnsdóttir', initials:'SB', bg:'#7B85D1', rating:5, date:'3. maí 2026', course:'STÆ 3X3', text:'Anna er frábær kennari! Hún útskýrir hlutina á mjög skýran hátt og er alltaf tilbúin að fara yfir efnið aftur ef maður skilur ekki.' },
+    { id:'rv2', name:'Gunnar Magnússon', initials:'GM', bg:'#3D4B9E', rating:5, date:'28. apríl 2026', course:'EÐL 2A3', text:'Mjög góð kennari. Tímarnir eru vel skipulagðir og hún er dugleg að nota dæmi til að skýra hugtökin.' },
+    { id:'rv3', name:'Helga Sigurðardóttir', initials:'HS', bg:'#B6BBE8', rating:4, date:'20. apríl 2026', course:'STÆ 1A3', text:'Anna er hjálpleg og þolinmæð. Mæli eindregið með henni fyrir nemendur sem eiga í erfiðleikum með stærðfræði.' },
+    { id:'rv4', name:'Páll Einarsson', initials:'PE', bg:'#4A5ABF', rating:5, date:'15. apríl 2026', course:'STÆ 3X3', text:'Ég lærði meira í einni klukkustund hjá Önnu en í mánuði í skólanum. Mjög mælt með!' },
+    { id:'rv5', name:'Ragnheiður Ólafsdóttir', initials:'RÓ', bg:'#9BA5E0', rating:5, date:'8. apríl 2026', course:'EÐL 2A3', text:'Einstaklingsnám hjá Önnu er ótrúlega gagnlegt. Hún finnur nákvæmlega hvar þú átt í vandræðum og hjálpar þér að leysa það.' },
+  ],
+  t2: [
+    { id:'rv6', name:'Kristján Pétursson', initials:'KP', bg:'#3D4B9E', rating:5, date:'1. maí 2026', course:'ENS 3A4', text:'Jón er mjög skemmtilegur kennari og gerir enskunám gaman. Mæli með honum.' },
+    { id:'rv7', name:'Ásdís Jónsdóttir', initials:'ÁJ', bg:'#7B85D1', rating:4, date:'22. apríl 2026', course:'ENS 2B3', text:'Góður kennari, útskýrir vel og er þolinmæður. Hefur hjálpað mér mikið.' },
+    { id:'rv8', name:'Ólafur Björnsson', initials:'ÓB', bg:'#B6BBE8', rating:5, date:'14. apríl 2026', course:'ENS 3A4', text:'Jón er frábær! Prófið gekk mun betur en ég bjóst við þökk sé honum.' },
+  ],
+  t3: [
+    { id:'rv9', name:'Sigrún Magnúsdóttir', initials:'SM', bg:'#9BA5E0', rating:5, date:'5. maí 2026', course:'JAR 2A3', text:'Elísabet er ástríðufull kennari sem smitar nemendur af áhuga sínum á jarðfræði.' },
+    { id:'rv10', name:'Bjarni Sigurjónsson', initials:'BS', bg:'#4A5ABF', rating:5, date:'26. apríl 2026', course:'JAR 3X3', text:'Ég stóð frammi fyrir erfðu prófi og Elísabet hjálpaði mér að skilja efnið á aðeins fáum tímum. Hún er ótrúleg!' },
+    { id:'rv11', name:'Þóra Helgadóttir', initials:'ÞH', bg:'#7B85D1', rating:5, date:'18. apríl 2026', course:'JAR 2A3', text:'Mjög góð kennari. Útskýrir flókin hugtök á einfaldan hátt.' },
+  ],
+  t4: [
+    { id:'rv12', name:'Ingvar Sigurðsson', initials:'IS', bg:'#3D4B9E', rating:5, date:'4. maí 2026', course:'STÆ 2A3', text:'Snæbjörn er frábær. Ég fór úr því að fá 5 í stærðfræði í 9 á aðeins tveimur mánuðum.' },
+    { id:'rv13', name:'Lilja Benediktsdóttir', initials:'LB', bg:'#B6BBE8', rating:4, date:'27. apríl 2026', course:'EÐL 1A3', text:'Góður kennari, mjög þolinmæður og góður að útskýra. Kæmst þó stundum í hann.' },
+    { id:'rv14', name:'Árni Þórðarson', initials:'ÁÞ', bg:'#9BA5E0', rating:5, date:'19. apríl 2026', course:'STÆ 2A3', text:'Ég mæli eindregið með Snæbirni. Hann er alltaf vel undirbúinn og tímarnir eru gagnlegir.' },
+  ],
+  t5: [
+    { id:'rv15', name:'Katrín Guðmundsdóttir', initials:'KG', bg:'#7B85D1', rating:5, date:'6. maí 2026', course:'STÆ 3X4', text:'María er besta kennarinn sem ég hef fengið. Hún er þolinmæð, skýr og mjög hjálpleg.' },
+    { id:'rv16', name:'Stefán Jóhannsson', initials:'SJ', bg:'#4A5ABF', rating:5, date:'30. apríl 2026', course:'EÐL 3A4', text:'Ég tók tíma hjá Maríu í undirbúning fyrir stærðfræðikeppni og fór langt! Frábær kennari.' },
+    { id:'rv17', name:'Vigdís Árnádóttir', initials:'VÁ', bg:'#3D4B9E', rating:5, date:'23. apríl 2026', course:'STÆ 3X4', text:'María útskýrir hlutina á þann hátt að maður skilur alveg. Mjög mælt með!' },
+    { id:'rv18', name:'Magnús Sigurjónsson', initials:'MS', bg:'#9BA5E0', rating:4, date:'16. apríl 2026', course:'EÐL 2A3', text:'Góð kennari, vel skipulögð og hjálpleg. Mæli með henni.' },
+  ],
+  t6: [
+    { id:'rv19', name:'Björg Eiríksdóttir', initials:'BE', bg:'#B6BBE8', rating:5, date:'2. maí 2026', course:'LÍF 2B3', text:'Davíð er mjög góður í lífræna efnafræði. Hann hjálpaði mér að skilja efnið sem ég hafði átt við um langa hríð.' },
+    { id:'rv20', name:'Hörður Pálsson', initials:'HP', bg:'#4A5ABF', rating:4, date:'25. apríl 2026', course:'EFN 3A4', text:'Góður kennari, útskýrir vel. Mæli með honum fyrir nemendur sem eiga í erfiðleikum með efnafræði.' },
+    { id:'rv21', name:'Sigurbjörg Traustadóttir', initials:'ST', bg:'#7B85D1', rating:5, date:'17. apríl 2026', course:'LÍF 2B3', text:'Davíð hjálpaði mér að fá 10 á líffræðiprófi! Ég get ekki mælt nóg með honum.' },
+  ],
+};
+window.TUDO_REVIEWS = TUDO_REVIEWS;
+
 window.TUDO_SUBJECTS = TUDO_SUBJECTS;
 window.TUDO_TEACHERS = TUDO_TEACHERS;
 window.TUDO_CHATS = TUDO_CHATS;
@@ -1771,7 +1808,42 @@ function SearchScreen({ filterSubject, onTeacher, onBack, onSubjectChange }) {
 }
 
 // ── TEACHER DETAIL ────────────────────────────────────────────
-function TeacherDetailScreen({ teacher, onBack, onBook, onChat }) {
+function StarRow({ rating, size=13 }) {
+  return (
+    <span style={{ display: 'inline-flex', gap: 2 }}>
+      {[1,2,3,4,5].map(i => (
+        <span key={i} style={{ color: i <= rating ? '#FFD466' : '#E0E3F0', fontSize: size }}>★</span>
+      ))}
+    </span>
+  );
+}
+
+function ReviewCard({ review }) {
+  return (
+    <div style={{ background: '#fff', borderRadius: 16, border: `1px solid ${TUDO_HAIR}`, padding: '14px 16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+        <div style={{
+          width: 36, height: 36, borderRadius: '50%', background: review.bg,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          color: '#fff', fontSize: 12, fontWeight: 700, flexShrink: 0,
+          fontFamily: '"Sora", system-ui, sans-serif',
+        }}>{review.initials}</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13.5, fontWeight: 700, color: TUDO_INK, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{review.name}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 1 }}>
+            <StarRow rating={review.rating} />
+            <span style={{ fontSize: 11, color: TUDO_MUTED }}>{review.date}</span>
+          </div>
+        </div>
+      </div>
+      <div style={{ fontSize: 13, color: TUDO_INK, lineHeight: 1.5, opacity: 0.85 }}>{review.text}</div>
+      <div style={{ marginTop: 6, fontSize: 11, color: TUDO_MUTED, fontWeight: 600 }}>{review.course}</div>
+    </div>
+  );
+}
+
+function TeacherDetailScreen({ teacher, onBack, onBook, onChat, onReviews }) {
+  const reviews = TUDO_REVIEWS[teacher.id] || [];
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#FAFBFE', display: 'flex', flexDirection: 'column' }}>
       {/* hero */}
@@ -1843,6 +1915,28 @@ function TeacherDetailScreen({ teacher, onBack, onBook, onChat }) {
           <InfoRow icon={Icon.user(16, TUDO_MUTED)} label="Hjá kennara" value={teacher.inPerson ? 'Já' : 'Nei'} />
           <InfoRow icon={Icon.globe(16, TUDO_MUTED)} label="Tungumál" value={teacher.languages.join(', ')} last />
         </div>
+        {reviews.length > 0 && (<>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 22, marginBottom: 10 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: TUDO_NAVY, textTransform: 'uppercase',
+              letterSpacing: 0.6, fontFamily: '"Sora", system-ui, sans-serif' }}>Umsagnir</div>
+            <button onClick={onReviews} style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: TUDO_NAVY, fontSize: 13, fontWeight: 700,
+              fontFamily: '"Sora", system-ui, sans-serif', padding: '2px 0',
+            }}>Sjá allar ({reviews.length})</button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {reviews.slice(0, 2).map(r => <ReviewCard key={r.id} review={r} />)}
+          </div>
+          {reviews.length > 2 && (
+            <button onClick={onReviews} style={{
+              width: '100%', marginTop: 10, padding: '12px',
+              background: TUDO_LAVENDER_LIGHT, border: 'none', borderRadius: 14,
+              color: TUDO_NAVY, fontSize: 14, fontWeight: 700, cursor: 'pointer',
+              fontFamily: '"Sora", system-ui, sans-serif',
+            }}>Sjá allar {reviews.length} umsagnir</button>
+          )}
+        </>)}
       </div>
       {/* sticky CTA */}
       <div style={{
@@ -1871,6 +1965,64 @@ function TeacherDetailScreen({ teacher, onBack, onBook, onChat }) {
             fontFamily: '"Sora", system-ui, sans-serif',
           }}>Senda beiðni</button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ReviewsScreen({ teacher, onBack }) {
+  const reviews = TUDO_REVIEWS[teacher.id] || [];
+  const avg = teacher.rating.toFixed(1);
+  const dist = [5,4,3,2,1].map(star => ({
+    star,
+    count: reviews.filter(r => r.rating === star).length,
+    pct: reviews.length ? Math.round(reviews.filter(r => r.rating === star).length / reviews.length * 100) : 0,
+  }));
+  return (
+    <div style={{ position: 'absolute', inset: 0, background: '#FAFBFE', display: 'flex', flexDirection: 'column' }}>
+      {/* header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 12,
+        padding: '52px 18px 16px', background: '#fff',
+        borderBottom: `1px solid ${TUDO_HAIR}`,
+      }}>
+        <button onClick={onBack} style={{
+          width: 40, height: 40, borderRadius: 999, border: 'none', cursor: 'pointer',
+          background: TUDO_LAVENDER_LIGHT,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+        }}>{Icon.back(20, TUDO_NAVY)}</button>
+        <div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: TUDO_INK,
+            fontFamily: '"Sora", system-ui, sans-serif' }}>Umsagnir</div>
+          <div style={{ fontSize: 12, color: TUDO_MUTED, marginTop: 1 }}>{teacher.name}</div>
+        </div>
+      </div>
+      {/* rating summary */}
+      <div style={{ background: '#fff', margin: '12px 16px 0', borderRadius: 18, border: `1px solid ${TUDO_HAIR}`, padding: '16px 18px' }}>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 40, fontWeight: 800, color: TUDO_NAVY,
+              fontFamily: '"Sora", system-ui, sans-serif', lineHeight: 1 }}>{avg}</div>
+            <StarRow rating={Math.round(teacher.rating)} size={16} />
+            <div style={{ fontSize: 11, color: TUDO_MUTED, marginTop: 4 }}>{reviews.length} umsagnir</div>
+          </div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {dist.map(d => (
+              <div key={d.star} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 11, color: TUDO_MUTED, width: 8, textAlign: 'right' }}>{d.star}</span>
+                <span style={{ fontSize: 10, color: '#FFD466' }}>★</span>
+                <div style={{ flex: 1, height: 6, background: TUDO_HAIR, borderRadius: 999, overflow: 'hidden' }}>
+                  <div style={{ width: `${d.pct}%`, height: '100%', background: '#FFD466', borderRadius: 999 }} />
+                </div>
+                <span style={{ fontSize: 11, color: TUDO_MUTED, width: 22 }}>{d.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      {/* list */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {reviews.map(r => <ReviewCard key={r.id} review={r} />)}
       </div>
     </div>
   );
@@ -1909,7 +2061,7 @@ function InfoRow({ icon, label, value, last }) {
 }
 
 Object.assign(window, {
-  SplashScreen, HomeScreen, SearchScreen, TeacherDetailScreen, TeacherCard,
+  SplashScreen, HomeScreen, SearchScreen, TeacherDetailScreen, ReviewsScreen, TeacherCard,
 });
 
 
@@ -3553,11 +3705,18 @@ function App() {
         onBack={() => { setScreen('tab'); setTab('home'); }}
       />
     );
+    if (screen === 'reviews' && activeTeacher) return (
+      <ReviewsScreen
+        teacher={activeTeacher}
+        onBack={() => setScreen('teacher')}
+      />
+    );
     if (screen === 'teacher' && activeTeacher) return (
       <TeacherDetailScreen
         teacher={activeTeacher}
         onBack={() => setScreen('tab')}
         onBook={() => setScreen('booking')}
+        onReviews={() => setScreen('reviews')}
         onChat={() => {
           const existing = TUDO_CHATS.find(c => c.teacherId === activeTeacher.id);
           const c = existing || { id: 'new', teacherId: activeTeacher.id, lastMessage: '', lastTime: 'núna', unread: 0, messages: [] };
